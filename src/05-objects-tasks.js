@@ -1,3 +1,4 @@
+
 /* ************************************************************************************************
  *                                                                                                *
  * Please read the following tutorial before implementing tasks:                                   *
@@ -20,8 +21,12 @@
  *    console.log(r.height);      // => 20
  *    console.log(r.getArea());   // => 200
  */
-function Rectangle(/* width, height */) {
-  throw new Error('Not implemented');
+function Rectangle(width, height) {
+  this.width = width;
+  this.height = height;
+  Rectangle.prototype.getArea = function area() {
+    return this.width * this.height;
+  };
 }
 
 
@@ -35,8 +40,8 @@ function Rectangle(/* width, height */) {
  *    [1,2,3]   =>  '[1,2,3]'
  *    { width: 10, height : 20 } => '{"height":10,"width":20}'
  */
-function getJSON(/* obj */) {
-  throw new Error('Not implemented');
+function getJSON(obj) {
+  return JSON.stringify(obj);
 }
 
 
@@ -51,8 +56,9 @@ function getJSON(/* obj */) {
  *    const r = fromJSON(Circle.prototype, '{"radius":10}');
  *
  */
-function fromJSON(/* proto, json */) {
-  throw new Error('Not implemented');
+function fromJSON(proto, json) {
+  const parseData = JSON.parse(json);
+  return Object.setPrototypeOf(parseData, proto);
 }
 
 
@@ -110,34 +116,165 @@ function fromJSON(/* proto, json */) {
  *  For more examples see unit tests.
  */
 
+class MSBES {
+  constructor() {
+    this.str = '';
+    this.elArr = [];
+    this.idArr = [];
+    this.pseudoArr = [];
+    this.countArr = [];
+    this.errObj = {
+      el: 'Element, id and pseudo-element should not occur more then one time inside the selector',
+      sel: 'Selector parts should be arranged in the following order: element, id, class, attribute, pseudo-class, pseudo-element',
+    };
+  }
+
+  element(value) {
+    if (!this.countArr.includes(0)) { this.countArr.push(0); }
+    if (this.countArr[0] > this.countArr[1] && this.countArr.length <= 2) {
+      throw new Error(this.errObj.sel);
+    }
+    if (this.elArr.includes('element')) {
+      throw new Error(this.errObj.el);
+    } else {
+      this.elArr.push('element');
+    }
+    this.idArr = [];
+    this.pseudoArr = [];
+    this.str += value;
+    return this;
+  }
+
+  id(value) {
+    if (!this.countArr.includes(1)) { this.countArr.push(1); }
+    if (this.countArr[0] > this.countArr[1] && this.countArr.length <= 2) {
+      throw new Error(this.errObj.sel);
+    }
+    if (this.idArr.includes('id')) {
+      throw new Error(this.errObj.el);
+    } else {
+      this.idArr.push('id');
+    }
+    this.elArr = [];
+    this.pseudoArr = [];
+    this.str += `#${value}`;
+    return this;
+  }
+
+  class(value) {
+    if (!this.countArr.includes(2)) { this.countArr.push(2); }
+    if (this.countArr[0] > this.countArr[1] && this.countArr.length <= 2) {
+      throw new Error(this.errObj.sel);
+    }
+    this.elArr = [];
+    this.idArr = [];
+    this.pseudoArr = [];
+    this.str += `.${value}`;
+    return this;
+  }
+
+  attr(value) {
+    if (!this.countArr.includes(3)) { this.countArr.push(3); }
+    if (this.countArr[0] > this.countArr[1] && this.countArr.length <= 2) {
+      throw new Error(this.errObj.sel);
+    }
+    this.elArr = [];
+    this.idArr = [];
+    this.pseudoArr = [];
+    this.str += `[${value}]`;
+    return this;
+  }
+
+  pseudoClass(value) {
+    if (!this.countArr.includes(4)) { this.countArr.push(4); }
+    if (this.countArr[0] > this.countArr[1] && this.countArr.length <= 2) {
+      throw new Error(this.errObj.sel);
+    }
+    this.elArr = [];
+    this.idArr = [];
+    this.pseudoArr = [];
+    this.str += `:${value}`;
+    return this;
+  }
+
+  pseudoElement(value) {
+    if (!this.countArr.includes(5)) { this.countArr.push(5); }
+    if (this.countArr[0] > this.countArr[1] && this.countArr.length <= 2) {
+      throw new Error(this.errObj.sel);
+    }
+    if (this.pseudoArr.includes('pseudoElement')) {
+      throw new Error(this.errObj.el);
+    } else {
+      this.pseudoArr.push('pseudoElement');
+    }
+    this.elArr = [];
+    this.idArr = [];
+    this.str += `::${value}`;
+    return this;
+  }
+
+  combine(selector1, combinator, selector2) {
+    this.str += `${selector1.clear()} ${combinator} ${selector2.clear()}`;
+    return this;
+  }
+
+  clear() {
+    const { str } = this;
+    this.str = '';
+    this.elArr = [];
+    this.idArr = [];
+    this.pseudoArr = [];
+    this.countArr = [];
+    return str;
+  }
+}
+
+
 const cssSelectorBuilder = {
-  element(/* value */) {
-    throw new Error('Not implemented');
+  element(value) {
+    const element = new MSBES();
+    return element.element(value);
   },
 
-  id(/* value */) {
-    throw new Error('Not implemented');
+  id(value) {
+    const element = new MSBES();
+    return element.id(value);
   },
 
-  class(/* value */) {
-    throw new Error('Not implemented');
+  class(value) {
+    const element = new MSBES();
+    return element.class(value);
   },
 
-  attr(/* value */) {
-    throw new Error('Not implemented');
+  attr(value) {
+    const element = new MSBES();
+    return element.attr(value);
   },
 
-  pseudoClass(/* value */) {
-    throw new Error('Not implemented');
+  pseudoClass(value) {
+    const element = new MSBES();
+    return element.pseudoClass(value);
   },
 
-  pseudoElement(/* value */) {
-    throw new Error('Not implemented');
+  pseudoElement(value) {
+    const element = new MSBES();
+    return element.pseudoElement(value);
   },
 
-  combine(/* selector1, combinator, selector2 */) {
-    throw new Error('Not implemented');
+  combine(selector1, combinator, selector2) {
+    const element = new MSBES();
+    return element.combine(selector1, combinator, selector2);
   },
+
+  clear() {
+    const element = new MSBES();
+    return element.clear();
+  },
+};
+
+// eslint-disable-next-line no-extend-native
+Object.prototype.stringify = function stringify() {
+  return this.clear();
 };
 
 
